@@ -1,0 +1,172 @@
+CREATE DATABASE Learners_DB;
+USE Learners_DB;
+
+CREATE TABLE LEARNERS(
+LEARNER_ID int primary key,
+FULL_NAME VARCHAR(20),
+COUNTRY VARCHAR(15)
+);
+
+CREATE TABLE COURSES(
+COURSE_ID int primary key,
+COURSE_NAME varchar(20),
+CATEGORY varchar(15),
+UNIT_PRICE decimal(10,2)
+);
+
+CREATE TABLE PURCHASES(
+PURCHASE_ID int primary key,
+LEARNER_ID int,
+COURSE_ID int,
+QUANTITY INT,
+PURCHASE_DATE date,
+foreign key (LEARNER_ID) references LEARNERS(LEARNER_ID),
+foreign key (COURSE_ID) references COURSES(COURSE_ID)
+);
+
+INSERT INTO LEARNERS (LEARNER_ID, FULL_NAME, COUNTRY) VALUES
+(1, 'Alice', 'USA'),
+(2, 'Bob', 'UK'),
+(3, 'Charlie', 'India'),
+(4, 'Diana', 'Canada'),
+(5, 'Evan', 'Germany');
+
+select*from learners;
+
+INSERT INTO COURSES (COURSE_ID, COURSE_NAME, CATEGORY, UNIT_PRICE) VALUES
+(101, 'Python', 'Coding', 29999.99),
+(102, 'SQL', 'Data', 14999.99),
+(103, 'Java', 'Coding', 19999.99),
+(104, 'Excel', 'Data', 9999.99),
+(105, 'AWS', 'Cloud', 17999.99);
+
+select*from courses;
+
+INSERT INTO PURCHASES (PURCHASE_ID, LEARNER_ID, COURSE_ID, QUANTITY, PURCHASE_DATE) VALUES
+(1001, 1, 101, 1, '2026-10-01'),
+(1002, 1, 102, 1, '2026-10-02'),
+(1003, 2, 103, 2, '2026-10-03'),
+(1004, 3, 101, 1, '2026-10-05'),
+(1005, 3, 104, 1, '2026-10-06'),
+(1006, 4, 105, 1, '2026-10-08'),
+(1007, 5, 102, 2, '2026-10-10');
+
+select*from purchases;
+
+select*from learners;
+select*from courses;
+
+
+SELECT 
+    l.FULL_NAME,
+    c.COURSE_NAME,
+    c.CATEGORY,
+    p.QUANTITY,
+    ROUND(c.UNIT_PRICE * p.QUANTITY, 2) AS total_amount,
+    p.PURCHASE_DATE
+FROM 
+    LEARNERS l
+INNER JOIN 
+    PURCHASES p ON l.LEARNER_ID = p.LEARNER_ID
+INNER JOIN 
+    COURSES c ON p.COURSE_ID = c.COURSE_ID
+ORDER BY 
+    total_amount DESC;
+    
+    SELECT 
+    l.FULL_NAME,
+    c.COURSE_NAME,
+    c.CATEGORY,
+    p.QUANTITY,
+    ROUND(c.UNIT_PRICE * p.QUANTITY, 2) AS total_amount,
+    p.PURCHASE_DATE
+FROM 
+    LEARNERS l
+LEFT JOIN 
+    PURCHASES p ON l.LEARNER_ID = p.LEARNER_ID
+LEFT JOIN 
+    COURSES c ON p.COURSE_ID = c.COURSE_ID
+ORDER BY 
+    total_amount DESC;
+    
+    SELECT 
+    l.FULL_NAME,
+    c.COURSE_NAME,
+    c.CATEGORY,
+    p.QUANTITY,
+    ROUND(c.UNIT_PRICE * p.QUANTITY, 2) AS total_amount,
+    p.PURCHASE_DATE
+FROM 
+    LEARNERS l
+RIGHT JOIN 
+    PURCHASES p ON l.LEARNER_ID = p.LEARNER_ID
+RIGHT JOIN 
+    COURSES c ON p.COURSE_ID = c.COURSE_ID
+ORDER BY 
+    total_amount DESC;
+    
+    SELECT 
+    l.FULL_NAME,
+    l.COUNTRY,
+    ROUND(SUM(c.UNIT_PRICE * p.QUANTITY), 2) AS total_spending
+FROM 
+    LEARNERS l
+JOIN 
+    PURCHASES p ON l.LEARNER_ID = p.LEARNER_ID
+JOIN 
+    COURSES c ON p.COURSE_ID = c.COURSE_ID
+GROUP BY 
+    l.LEARNER_ID, l.FULL_NAME, l.COUNTRY
+ORDER BY 
+    total_spending DESC;
+    
+    SELECT 
+    c.COURSE_NAME,
+    SUM(p.QUANTITY) AS total_quantity_sold
+FROM 
+    COURSES c
+JOIN 
+    PURCHASES p ON c.COURSE_ID = p.COURSE_ID
+GROUP BY 
+    c.COURSE_ID, c.COURSE_NAME
+ORDER BY 
+    total_quantity_sold DESC
+LIMIT 3;
+
+SELECT 
+    c.CATEGORY,
+    ROUND(SUM(c.UNIT_PRICE * p.QUANTITY), 2) AS total_revenue,
+    COUNT(DISTINCT p.LEARNER_ID) AS unique_learners_count
+FROM 
+    COURSES c
+JOIN 
+    PURCHASES p ON c.COURSE_ID = p.COURSE_ID
+GROUP BY 
+    c.CATEGORY
+ORDER BY 
+    total_revenue DESC;
+    
+    SELECT 
+    l.FULL_NAME,
+    COUNT(DISTINCT c.CATEGORY) AS category_count
+FROM 
+    LEARNERS l
+JOIN 
+    PURCHASES p ON l.LEARNER_ID = p.LEARNER_ID
+JOIN 
+    COURSES c ON p.COURSE_ID = c.COURSE_ID
+GROUP BY 
+    l.LEARNER_ID, l.FULL_NAME
+HAVING 
+    COUNT(DISTINCT c.CATEGORY) > 1;
+    
+    SELECT 
+    c.COURSE_NAME,
+    c.CATEGORY,
+    c.UNIT_PRICE
+FROM 
+    COURSES c
+LEFT JOIN 
+    PURCHASES p ON c.COURSE_ID = p.COURSE_ID
+WHERE 
+    p.PURCHASE_ID IS NULL;
